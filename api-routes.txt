@@ -1,0 +1,322 @@
+# API Endpoint Reference
+
+## Task Management Endpoints
+
+### Get all tasks
+```
+GET /api/tasks
+```
+Returns a list of all tasks in the system.
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "title": "Website Development",
+    "description": "Frontend implementation",
+    "estimated_hours": 20,
+    "actual_hours": 8.5,
+    "start_date": "2025-03-20",
+    "status": "in_progress",
+    "bas_account": "7010",
+    "created_at": "2025-03-18T14:20:30.123Z"
+  },
+  ...
+]
+```
+
+### Create a new task
+```
+POST /api/tasks
+```
+
+**Request Body:**
+```json
+{
+  "title": "API Integration",
+  "description": "Connect to payment gateway",
+  "estimated_hours": 8,
+  "start_date": "2025-03-22",
+  "bas_account": "6200"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 2,
+  "title": "API Integration",
+  "description": "Connect to payment gateway",
+  "estimated_hours": 8,
+  "actual_hours": 0,
+  "start_date": "2025-03-22",
+  "status": "not_started",
+  "bas_account": "6200",
+  "created_at": "2025-03-24T15:30:45.678Z"
+}
+```
+
+### Update a task
+```
+PUT /api/tasks/{task_id}
+```
+
+**Request Body:**
+```json
+{
+  "title": "API Integration - Updated",
+  "description": "Connect to payment gateway and test endpoints",
+  "estimated_hours": 10,
+  "actual_hours": 2.5,
+  "start_date": "2025-03-22",
+  "status": "in_progress",
+  "bas_account": "6200"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 2,
+  "title": "API Integration - Updated",
+  "description": "Connect to payment gateway and test endpoints",
+  "estimated_hours": 10,
+  "actual_hours": 2.5,
+  "start_date": "2025-03-22",
+  "status": "in_progress",
+  "bas_account": "6200",
+  "created_at": "2025-03-24T15:30:45.678Z"
+}
+```
+
+### Delete a task
+```
+DELETE /api/tasks/{task_id}
+```
+
+**Response:**
+```json
+{
+  "message": "Task deleted successfully"
+}
+```
+
+## Time Entries Endpoints
+
+### Get all time entries
+```
+GET /api/time-entries
+```
+Returns all time entries. Can be filtered by task_id.
+
+**Query Parameters:**
+- `task_id` (optional): Filter entries by task ID
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "task_id": 1,
+    "start_time": "2025-03-20T09:00:00",
+    "end_time": "2025-03-20T12:30:00",
+    "duration": 3.5,
+    "notes": "Header and navigation",
+    "created_at": "2025-03-20T12:30:05.123Z"
+  },
+  ...
+]
+```
+
+### Create a new time entry
+```
+POST /api/time-entries
+```
+
+**Request Body:**
+```json
+{
+  "task_id": 1,
+  "start_time": "2025-03-24T14:00:00",
+  "end_time": "2025-03-24T16:30:00",
+  "duration": 2.5,
+  "notes": "Implemented responsive design"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 4,
+  "task_id": 1,
+  "start_time": "2025-03-24T14:00:00",
+  "end_time": "2025-03-24T16:30:00",
+  "duration": 2.5,
+  "notes": "Implemented responsive design",
+  "created_at": "2025-03-24T16:30:05.123Z"
+}
+```
+
+## BAS Accounting Endpoints
+
+### Get all BAS accounts
+```
+GET /api/bas-accounts
+```
+Returns all BAS accounts in the system.
+
+**Response:**
+```json
+[
+  {
+    "id": "1930",
+    "name": "Företagskonto / checkräkningskonto",
+    "category": "Tillgångar",
+    "description": "Company account/checking account",
+    "is_active": true
+  },
+  ...
+]
+```
+
+### Import BAS accounts from CSV
+```
+POST /api/bas-accounts/import
+```
+
+**Request:** Multipart form with CSV file
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Successfully imported 120 BAS accounts. 115 accounts are now active.",
+  "imported_count": 120,
+  "active_count": 115
+}
+```
+
+## Reporting Endpoints
+
+### Task Status Report
+```
+GET /api/reports/task-status
+```
+Returns counts of tasks grouped by status.
+
+**Response:**
+```json
+[
+  {
+    "status": "not_started",
+    "count": 5
+  },
+  {
+    "status": "in_progress",
+    "count": 8
+  },
+  {
+    "status": "completed",
+    "count": 12
+  }
+]
+```
+
+### Time by BAS Account Report
+```
+GET /api/reports/time-by-account
+```
+Returns total hours spent by BAS account.
+
+**Query Parameters:**
+- `start_date` (optional): Filter by start date (YYYY-MM-DD)
+- `end_date` (optional): Filter by end date (YYYY-MM-DD)
+
+**Response:**
+```json
+[
+  {
+    "id": "7010",
+    "name": "Löner",
+    "category": "Personal",
+    "total_hours": 45.2,
+    "task_count": 8
+  },
+  ...
+]
+```
+
+### Time Accuracy Report
+```
+GET /api/reports/time-accuracy
+```
+Returns information about time estimation accuracy.
+
+**Response:**
+```json
+[
+  {
+    "id": 3,
+    "title": "Client Meeting",
+    "estimated_hours": 2,
+    "actual_hours": 1.5,
+    "accuracy_percentage": 75
+  },
+  ...
+]
+```
+
+### Export Accounting Data
+```
+GET /api/reports/export
+```
+Exports data in a format suitable for accounting systems.
+
+**Query Parameters:**
+- `month` (optional): Filter by month (1-12)
+- `year` (optional): Filter by year (e.g., 2025)
+
+**Response:**
+```json
+{
+  "success": true,
+  "export_data": [
+    {
+      "account_number": "7010",
+      "account_name": "Löner",
+      "description": "Website Development",
+      "hours": 8.5,
+      "date": "2025-03-20"
+    },
+    ...
+  ],
+  "total_records": 25,
+  "total_hours": 75.2
+}
+```
+
+## Error Responses
+
+All endpoints may return the following error responses:
+
+### 400 Bad Request
+```json
+{
+  "error": "Invalid request parameters"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "error": "Resource not found"
+}
+```
+
+### 500 Internal Server Error
+```json
+{
+  "error": "An unexpected error occurred"
+}
+```
